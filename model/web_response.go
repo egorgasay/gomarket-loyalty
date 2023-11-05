@@ -5,3 +5,8 @@ type WebResponse struct {
 	Status string `json:"status"`
 	Data   string `json:"data"`
 }
+
+type RegisterRequest struct {
+	Login    string `json:"login"`
+	Password string `json:"password"`
+}
