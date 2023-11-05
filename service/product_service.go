@@ -1,6 +1,6 @@
 package service
 
-import "golang-clean-architecture/model"
+import "gomarket-loyalty/model"
 
 type ProductService interface {
 	Create(request model.CreateProductRequest) (response model.CreateProductResponse)

@@ -1,10 +1,11 @@
 package controller
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"golang-clean-architecture/exception"
-	"golang-clean-architecture/model"
-	"golang-clean-architecture/service"
+	"gomarket-loyalty/exception"
+	"gomarket-loyalty/model"
+	"gomarket-loyalty/service"
 )
 
 type ProductController struct {

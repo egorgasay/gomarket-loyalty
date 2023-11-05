@@ -1,10 +1,10 @@
 package service
 
 import (
-	"golang-clean-architecture/entity"
-	"golang-clean-architecture/model"
-	"golang-clean-architecture/repository"
-	"golang-clean-architecture/validation"
+	"gomarket-loyalty/entity"
+	"gomarket-loyalty/model"
+	"gomarket-loyalty/repository"
+	"gomarket-loyalty/validation"
 )
 
 func NewProductService(productRepository *repository.ProductRepository) ProductService {

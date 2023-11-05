@@ -1,6 +1,6 @@
 package repository
 
-import "golang-clean-architecture/entity"
+import "gomarket-loyalty/entity"
 
 type ProductRepository interface {
 	Insert(product entity.Product)

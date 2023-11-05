@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/joho/godotenv"
-	"golang-clean-architecture/exception"
+	"gomarket-loyalty/exception"
 	"os"
 )
 

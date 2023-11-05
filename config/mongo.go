@@ -4,7 +4,7 @@ import (
 	"context"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"golang-clean-architecture/exception"
+	"gomarket-loyalty/exception"
 	"strconv"
 	"time"
 )
