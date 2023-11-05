@@ -1,10 +1,11 @@
 package controller
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"golang-clean-architecture/repository"
-	"golang-clean-architecture/service"
 	config2 "gomarket-loyalty/config"
+	"gomarket-loyalty/repository"
+	"gomarket-loyalty/service"
 )
 
 func createTestApp() *fiber.App {
