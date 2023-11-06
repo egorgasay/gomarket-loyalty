@@ -112,9 +112,9 @@ func Test_serviceImpl_Register(t *testing.T) {
 			service := &serviceImpl{
 				repository: storage,
 			}
-			err := service.Register(tt.fields.userRequest)
+			err := service.Create(tt.fields.userRequest)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Register() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 		})

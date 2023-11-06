@@ -14,19 +14,18 @@ import (
 	"testing"
 )
 
-func TestController_Register(t *testing.T) {
+func TestController_Create(t *testing.T) {
 
 	type mckS func(r *mocks.Service)
-
-	t1, _ := json.Marshal(&model.RegisterRequest{Login: "login"})
-	t2, _ := json.Marshal(&model.RegisterRequest{Login: "login1"})
-	t3, _ := json.Marshal(&model.RegisterRequest{Login: ""})
-	t4, _ := json.Marshal(`Logn: "dg"`)
+	req := func(t []byte) *http.Request {
+		return httptest.NewRequest(http.MethodPost, "http://127.0.0.1:8080/v1/user", bytes.NewBuffer(t))
+	}
 
 	type args struct {
 		w *httptest.ResponseRecorder
 		r *http.Request
 		m mckS
+		t any
 	}
 	tests := []struct {
 		name     string
@@ -37,10 +36,10 @@ func TestController_Register(t *testing.T) {
 			name: "positiveTest1",
 			args: args{
 				w: &httptest.ResponseRecorder{},
-				r: httptest.NewRequest(http.MethodPost, "http://127.0.0.1:8080/v1/user/register", bytes.NewBuffer(t1)),
 				m: func(r *mocks.Service) {
-					r.On("Register", model.RegisterRequest{Login: "login"}).Return(nil)
+					r.On("Create", model.RegisterRequest{Login: "login"}).Return(nil)
 				},
+				t: model.RegisterRequest{Login: "login"},
 			},
 			wantCode: 200,
 		},
@@ -48,10 +47,10 @@ func TestController_Register(t *testing.T) {
 			name: "positiveTest2",
 			args: args{
 				w: &httptest.ResponseRecorder{},
-				r: httptest.NewRequest(http.MethodPost, "http://127.0.0.1:8080/v1/user/register", bytes.NewBuffer(t2)),
 				m: func(r *mocks.Service) {
-					r.On("Register", model.RegisterRequest{Login: "login1"}).Return(nil)
+					r.On("Create", model.RegisterRequest{Login: "login1"}).Return(nil)
 				},
+				t: model.RegisterRequest{Login: "login1"},
 			},
 			wantCode: 200,
 		},
@@ -59,8 +58,8 @@ func TestController_Register(t *testing.T) {
 			name: "badJSON",
 			args: args{
 				w: &httptest.ResponseRecorder{},
-				r: httptest.NewRequest(http.MethodPost, "http://127.0.0.1:8080/v1/user/register", bytes.NewBuffer(t4)),
 				m: func(r *mocks.Service) {},
+				t: `Logn: "dg"`,
 			},
 
 			wantCode: 400,
@@ -69,10 +68,10 @@ func TestController_Register(t *testing.T) {
 			name: "emtyLogin",
 			args: args{
 				w: &httptest.ResponseRecorder{},
-				r: httptest.NewRequest(http.MethodPost, "http://127.0.0.1:8080/v1/user/register", bytes.NewBuffer(t3)),
 				m: func(r *mocks.Service) {
-					r.On("Register", model.RegisterRequest{Login: ""}).Return(exception.ErrEnabledData)
+					r.On("Create", model.RegisterRequest{Login: ""}).Return(exception.ErrEnabledData)
 				},
+				t: model.RegisterRequest{Login: ""},
 			},
 
 			wantCode: 400,
@@ -81,10 +80,10 @@ func TestController_Register(t *testing.T) {
 			name: "unexpectedError",
 			args: args{
 				w: &httptest.ResponseRecorder{},
-				r: httptest.NewRequest(http.MethodPost, "http://127.0.0.1:8080/v1/user/register", bytes.NewBuffer(t3)),
 				m: func(r *mocks.Service) {
-					r.On("Register", model.RegisterRequest{Login: ""}).Return(errors.New("unexpectedError"))
+					r.On("Create", model.RegisterRequest{Login: ""}).Return(errors.New("unexpectedError"))
 				},
+				t: model.RegisterRequest{Login: ""},
 			},
 			wantCode: 500,
 		},
@@ -96,13 +95,14 @@ func TestController_Register(t *testing.T) {
 
 			logic := mocks.NewService(t)
 			tt.args.m(logic)
+			body, _ := json.Marshal(&tt.args.t)
+			tt.args.r = req(body)
 			tt.args.r.Header.Set("Content-Type", "application/json")
-
 			controller := &Controller{
 				service: logic,
 			}
 
-			app.Post("/v1/user/register", controller.Register)
+			app.Post("/v1/user", controller.Create)
 			resp, err := app.Test(tt.args.r)
 			if err != nil {
 				return

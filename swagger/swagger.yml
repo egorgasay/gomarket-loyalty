@@ -3,7 +3,7 @@ info:
   version: 1.0.0
   title: API для создания нового пользователя
 paths:
-  /v1/user/register:
+  /v1/user:
     post:
       summary: Регистрация пользователя
       description: Эндпоинт для регистрации нового пользователя.

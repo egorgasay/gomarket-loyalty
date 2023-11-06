@@ -21,7 +21,7 @@ func (service *serviceImpl) Base() string {
 	return "Hello World"
 }
 
-func (service *serviceImpl) Register(request model.RegisterRequest) error {
+func (service *serviceImpl) Create(request model.RegisterRequest) error {
 	err := service.ValidateDataRegister(request)
 	if err != nil {
 		return err
