@@ -18,9 +18,9 @@ func TestController_Register(t *testing.T) {
 
 	type mckS func(r *mocks.Service)
 
-	t1, _ := json.Marshal(&model.RegisterRequest{Login: "login", Password: "waxXd2dAwd3"})
-	t2, _ := json.Marshal(&model.RegisterRequest{Login: "login1", Password: "awdSwd4/7"})
-	t3, _ := json.Marshal(&model.RegisterRequest{Login: "", Password: "pa6Wtk7ssword"})
+	t1, _ := json.Marshal(&model.RegisterRequest{Login: "login"})
+	t2, _ := json.Marshal(&model.RegisterRequest{Login: "login1"})
+	t3, _ := json.Marshal(&model.RegisterRequest{Login: ""})
 	t4, _ := json.Marshal(`Logn: "dg"`)
 
 	type args struct {
@@ -39,7 +39,7 @@ func TestController_Register(t *testing.T) {
 				w: &httptest.ResponseRecorder{},
 				r: httptest.NewRequest(http.MethodPost, "http://127.0.0.1:8080/v1/user/register", bytes.NewBuffer(t1)),
 				m: func(r *mocks.Service) {
-					r.On("Register", model.RegisterRequest{Login: "login", Password: "waxXd2dAwd3"}).Return("ZDRGDRHG-DRGDRGDRG-2TJFYTUKAW", nil)
+					r.On("Register", model.RegisterRequest{Login: "login"}).Return(nil)
 				},
 			},
 			wantCode: 200,
@@ -50,7 +50,7 @@ func TestController_Register(t *testing.T) {
 				w: &httptest.ResponseRecorder{},
 				r: httptest.NewRequest(http.MethodPost, "http://127.0.0.1:8080/v1/user/register", bytes.NewBuffer(t2)),
 				m: func(r *mocks.Service) {
-					r.On("Register", model.RegisterRequest{Login: "login1", Password: "awdSwd4/7"}).Return("ZDRGDRHG-DRioRG-2TJFYTUKAW", nil)
+					r.On("Register", model.RegisterRequest{Login: "login1"}).Return(nil)
 				},
 			},
 			wantCode: 200,
@@ -71,7 +71,7 @@ func TestController_Register(t *testing.T) {
 				w: &httptest.ResponseRecorder{},
 				r: httptest.NewRequest(http.MethodPost, "http://127.0.0.1:8080/v1/user/register", bytes.NewBuffer(t3)),
 				m: func(r *mocks.Service) {
-					r.On("Register", model.RegisterRequest{Login: "", Password: "pa6Wtk7ssword"}).Return("", exception.ErrEnabledData)
+					r.On("Register", model.RegisterRequest{Login: ""}).Return(exception.ErrEnabledData)
 				},
 			},
 
@@ -83,7 +83,7 @@ func TestController_Register(t *testing.T) {
 				w: &httptest.ResponseRecorder{},
 				r: httptest.NewRequest(http.MethodPost, "http://127.0.0.1:8080/v1/user/register", bytes.NewBuffer(t3)),
 				m: func(r *mocks.Service) {
-					r.On("Register", model.RegisterRequest{Login: "", Password: "pa6Wtk7ssword"}).Return("", errors.New("unexpectedError"))
+					r.On("Register", model.RegisterRequest{Login: ""}).Return(errors.New("unexpectedError"))
 				},
 			},
 			wantCode: 500,

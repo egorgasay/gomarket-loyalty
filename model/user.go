@@ -1,8 +1,7 @@
 package model
 
 type User struct {
-	Login    string `bson:"_id"`
-	Password string `bson:"password"`
-	Cookie   string `bson:"cookie"`
-	Bonus    int    `bson:"bonus"`
+	Login      string `bson:"_id"`
+	SpentBonus int    `bson:"spentBonus"`
+	Bonus      int    `bson:"bonus"`
 }

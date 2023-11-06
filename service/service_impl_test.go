@@ -8,30 +8,30 @@ import (
 	"testing"
 )
 
-func TestHashPassword(t *testing.T) {
-	tests := []struct {
-		password string
-		expected string
-	}{
-		{
-			password: "password123",
-			expected: "482c811da5d5b4bc6d497ffa98491e38",
-		},
-		{
-			password: "abc123",
-			expected: "e99a18c428cb38d5f260853678922e03",
-		},
-	}
-
-	service := &serviceImpl{}
-
-	for _, test := range tests {
-		result := service.HashPassword(test.password)
-		if result != test.expected {
-			t.Errorf("HashPassword(%s) = %s, expected %s", test.password, result, test.expected)
-		}
-	}
-}
+//func TestHashPassword(t *testing.T) {
+//	tests := []struct {
+//		password string
+//		expected string
+//	}{
+//		{
+//			password: "password123",
+//			expected: "482c811da5d5b4bc6d497ffa98491e38",
+//		},
+//		{
+//			password: "abc123",
+//			expected: "e99a18c428cb38d5f260853678922e03",
+//		},
+//	}
+//
+//	service := &serviceImpl{}
+//
+//	for _, test := range tests {
+//		result := service.HashPassword(test.password)
+//		if result != test.expected {
+//			t.Errorf("HashPassword(%s) = %s, expected %s", test.password, result, test.expected)
+//		}
+//	}
+//}
 
 func Test_serviceImpl_Register(t *testing.T) {
 
@@ -53,8 +53,7 @@ func Test_serviceImpl_Register(t *testing.T) {
 			name: "Valid registration1",
 			fields: fields{
 				userRequest: model.RegisterRequest{
-					Login:    "john",
-					Password: "password123",
+					Login: "john",
 				},
 			},
 			args: args{
@@ -68,8 +67,7 @@ func Test_serviceImpl_Register(t *testing.T) {
 			name: "Valid registration2",
 			fields: fields{
 				userRequest: model.RegisterRequest{
-					Login:    "johnawdawd",
-					Password: "passwawdgderg43eg",
+					Login: "johnawdawd",
 				},
 			},
 			args: args{
@@ -83,8 +81,7 @@ func Test_serviceImpl_Register(t *testing.T) {
 			name: "invalid registration",
 			fields: fields{
 				userRequest: model.RegisterRequest{
-					Login:    "jo",
-					Password: "password123",
+					Login: "jo",
 				},
 			},
 			args: args{
@@ -96,8 +93,7 @@ func Test_serviceImpl_Register(t *testing.T) {
 			name: "LoginAlreadyExists",
 			fields: fields{
 				userRequest: model.RegisterRequest{
-					Login:    "jo2ew",
-					Password: "password123",
+					Login: "jo2ew",
 				},
 			},
 			args: args{
@@ -116,7 +112,7 @@ func Test_serviceImpl_Register(t *testing.T) {
 			service := &serviceImpl{
 				repository: storage,
 			}
-			_, err := service.Register(tt.fields.userRequest)
+			err := service.Register(tt.fields.userRequest)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Register() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -134,8 +130,7 @@ func Test_serviceImpl_ValidateDataRegister(t *testing.T) {
 		{
 			name: "Valid registration data",
 			user: model.RegisterRequest{
-				Login:    "john",
-				Password: "password123",
+				Login: "john",
 			},
 
 			wantErr: false,
@@ -143,20 +138,8 @@ func Test_serviceImpl_ValidateDataRegister(t *testing.T) {
 		{
 			name: "Invalid username",
 			user: model.RegisterRequest{
-				Login:    "",
-				Password: "password123",
+				Login: "",
 			},
-			wantErr: true,
-		},
-
-		{
-			name: "Invalid password",
-
-			user: model.RegisterRequest{
-				Login:    "john",
-				Password: "pad",
-			},
-
 			wantErr: true,
 		},
 	}

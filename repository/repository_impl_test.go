@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"github.com/egorgasay/dockerdb/v3"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -25,31 +26,30 @@ func Test_repositoryImpl_SetUser(t *testing.T) {
 
 			args: args{
 				user: model.User{
-					Login:    "John Doe",
-					Password: "sefsefsefsef",
+					Login:      "John Doe",
+					Bonus:      0,
+					SpentBonus: 0,
 				},
 			},
 			wantErr: false,
 		},
 		{
-			name: "Invalid user",
+			name: "Duplicate user",
 			args: args{
 				user: model.User{
-					Login:    "John Doe",
-					Password: "dsrg4e53gr",
+					Login: "John Doe",
 				},
 			},
 			wantErr: true,
 		},
 	}
-
+	res := upMongo(context.Background(), t)
+	defer res.errase()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			res := upMongo(context.Background(), t)
-			defer res.errase()
 
 			repository := &repositoryImpl{
-				db: res.client.Database("users"),
+				db: res.client.Database("golang_test"),
 			}
 			if err := repository.SetUser(tt.args.user); (err != nil) != tt.wantErr {
 				t.Errorf("SetUser() error = %v, wantErr %v", err, tt.wantErr)
@@ -66,12 +66,14 @@ type Result struct {
 
 func upMongo(ctx context.Context, t *testing.T) *Result {
 	var cl *mongo.Client
-	cfg := dockerdb.EmptyConfig().Vendor("mongo").DBName("SaveTokenData").
+	var err error
+	cfg := dockerdb.EmptyConfig().Vendor("mongo").DBName("golang_test").
 		NoSQL(func(c dockerdb.Config) (stop bool) {
 			opt := options.Client()
-			opt.ApplyURI("mongodb://mongo:mongo@localhost:27017").SetTimeout(1 * time.Second)
+			dsn := fmt.Sprintf("mongodb://127.0.0.1:%s", c.GetActualPort())
+			opt.ApplyURI(dsn).SetTimeout(1 * time.Second)
 
-			cl, err := mongo.Connect(ctx, opt)
+			cl, err = mongo.Connect(ctx, opt)
 			if err != nil {
 				t.Log("can't connect to mongodb")
 				return false

@@ -34,7 +34,7 @@ func (controller *Controller) Register(c *fiber.Ctx) error {
 			"message": fmt.Errorf("error parsing request body"),
 		})
 	}
-	cookie, err := controller.service.Register(user)
+	err := controller.service.Register(user)
 	if err != nil {
 		if errors.Is(err, exception.ErrLoginAlreadyExists) {
 			return c.Status(409).JSON(fiber.Map{
@@ -50,11 +50,6 @@ func (controller *Controller) Register(c *fiber.Ctx) error {
 			"message": fmt.Errorf("error registering user"),
 		})
 	}
-
-	c.Cookie(&fiber.Cookie{
-		Name:  "auth",
-		Value: cookie,
-	})
 
 	return c.Status(200).SendString("success")
 }

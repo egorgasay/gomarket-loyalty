@@ -28,10 +28,7 @@ func NewMongoDatabase(configuration Config) *mongo.Database {
 		SetMaxPoolSize(uint64(mongoPoolMax)).
 		SetMaxConnIdleTime(time.Duration(mongoMaxIdleTime) * time.Second)
 
-	client, err := mongo.NewClient(option)
-	exception.PanicIfNeeded(err)
-
-	err = client.Connect(ctx)
+	client, err := mongo.Connect(ctx, option)
 	exception.PanicIfNeeded(err)
 
 	database := client.Database(configuration.Get("MONGO_DATABASE"))
