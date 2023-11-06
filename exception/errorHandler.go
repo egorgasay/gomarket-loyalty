@@ -11,7 +11,7 @@ func ErrorHandler(c *fiber.Ctx, err error) error {
 	var unmarshalTypeError *json.UnmarshalTypeError
 
 	if err != nil {
-		if errors.Is(err, ErrLoginAlreadyExists) {
+		if errors.Is(err, ErrAlreadyExists) {
 			err := fmt.Sprintf("login is already exists %s", err)
 			return c.Status(409).JSON(fiber.Map{
 				"message": err,

@@ -9,4 +9,5 @@ type Service interface {
 	Base() string
 	Create(request model.RegisterRequest) error
 	ValidateDataRegister(user model.RegisterRequest) error
+	AddMechanic(bonus model.Mechanic) error
 }

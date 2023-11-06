@@ -38,12 +38,21 @@ func (service *serviceImpl) Create(request model.RegisterRequest) error {
 	return nil
 }
 
-//func (service *serviceImpl) HashPassword(password string) string {
-//	hash := md5.New()
-//	hash.Write([]byte(password))
-//	hashString := hex.EncodeToString(hash.Sum(nil))
-//	return hashString
-//}
+func (service *serviceImpl) AddMechanic(bonus model.Mechanic) error {
+	if bonus.RewardType != "%" && bonus.RewardType != "pt" {
+		return exception.ErrEnabledData
+	}
+	if bonus.Reward <= 0 {
+		return exception.ErrEnabledData
+
+	}
+	err := service.repository.AddMechanic(bonus)
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
 
 // ValidateDataRegister validates the user data for registration.
 // It checks if the login is between 3 and 15 characters long,

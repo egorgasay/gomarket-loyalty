@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/stretchr/testify/mock"
 	"gomarket-loyalty/exception"
 	"gomarket-loyalty/model"
@@ -8,32 +9,7 @@ import (
 	"testing"
 )
 
-//func TestHashPassword(t *testing.T) {
-//	tests := []struct {
-//		password string
-//		expected string
-//	}{
-//		{
-//			password: "password123",
-//			expected: "482c811da5d5b4bc6d497ffa98491e38",
-//		},
-//		{
-//			password: "abc123",
-//			expected: "e99a18c428cb38d5f260853678922e03",
-//		},
-//	}
-//
-//	service := &serviceImpl{}
-//
-//	for _, test := range tests {
-//		result := service.HashPassword(test.password)
-//		if result != test.expected {
-//			t.Errorf("HashPassword(%s) = %s, expected %s", test.password, result, test.expected)
-//		}
-//	}
-//}
-
-func Test_serviceImpl_Register(t *testing.T) {
+func Test_serviceImpl_Create(t *testing.T) {
 
 	type mckR func(r *mocks.Repository)
 
@@ -98,7 +74,7 @@ func Test_serviceImpl_Register(t *testing.T) {
 			},
 			args: args{
 				m: func(r *mocks.Repository) {
-					r.On("SetUser", mock.Anything).Return(exception.ErrLoginAlreadyExists)
+					r.On("SetUser", mock.Anything).Return(exception.ErrAlreadyExists)
 				},
 			},
 			wantErr: true,
@@ -151,6 +127,154 @@ func Test_serviceImpl_ValidateDataRegister(t *testing.T) {
 			}
 			if err := service.ValidateDataRegister(tt.user); (err != nil) != tt.wantErr {
 				t.Errorf("ValidateDataRegister() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func Test_serviceImpl_AddMechanic(t *testing.T) {
+
+	type mckR func(r *mocks.Repository)
+
+	type fields struct {
+		mechanic model.Mechanic
+	}
+	type args struct {
+		m mckR
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+		err     error
+	}{
+		{
+			name: "Valid data1",
+			fields: fields{
+				mechanic: model.Mechanic{
+					Match:      "Огненная вода",
+					RewardType: "pt",
+					Reward:     10,
+				},
+			},
+			args: args{
+				m: func(r *mocks.Repository) {
+					r.On("AddMechanic", mock.Anything).Return(nil)
+				},
+			},
+			wantErr: false,
+			err:     nil,
+		},
+		{
+			name: "Valid data2",
+			fields: fields{
+				mechanic: model.Mechanic{
+					Match:      "Дорогой воздух",
+					RewardType: "%",
+					Reward:     10,
+				},
+			},
+			args: args{
+				m: func(r *mocks.Repository) {
+					r.On("AddMechanic", mock.Anything).Return(nil)
+				},
+			},
+			wantErr: false,
+			err:     nil,
+		},
+		{
+			name: "invalid data1",
+			fields: fields{
+				mechanic: model.Mechanic{
+					Match:      "Дорогой воздух",
+					RewardType: "",
+					Reward:     10,
+				},
+			},
+			args: args{
+				m: func(r *mocks.Repository) {},
+			},
+			wantErr: true,
+			err:     exception.ErrEnabledData,
+		},
+		{
+			name: "invalid data2",
+			fields: fields{
+				mechanic: model.Mechanic{
+					Match:      "Дорогой воздух",
+					RewardType: "awd",
+					Reward:     10,
+				},
+			},
+			args: args{
+				m: func(r *mocks.Repository) {},
+			},
+			wantErr: true,
+			err:     exception.ErrEnabledData,
+		},
+		{
+			name: "already exists data",
+			fields: fields{
+				mechanic: model.Mechanic{
+					Match:      "Дорогой воздух",
+					RewardType: "pt",
+					Reward:     10,
+				},
+			},
+			args: args{
+				m: func(r *mocks.Repository) {
+					r.On("AddMechanic", mock.Anything).Return(exception.ErrAlreadyExists)
+				},
+			},
+			wantErr: true,
+			err:     exception.ErrAlreadyExists,
+		},
+		{
+			name: "negative data",
+			fields: fields{
+				mechanic: model.Mechanic{
+					Match:      "Дорогой воздух",
+					RewardType: "%",
+					Reward:     -10,
+				},
+			},
+			args: args{
+				m: func(r *mocks.Repository) {},
+			},
+			wantErr: true,
+			err:     exception.ErrEnabledData,
+		},
+		{
+			name: "unxpected error",
+			fields: fields{
+				mechanic: model.Mechanic{
+					Match:      "Дорогой воздух",
+					RewardType: "%",
+					Reward:     10,
+				},
+			},
+			args: args{
+				m: func(r *mocks.Repository) {
+					r.On("AddMechanic", mock.Anything).Return(errors.ErrUnsupported)
+				},
+			},
+			wantErr: true,
+			err:     errors.ErrUnsupported,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			storage := mocks.NewRepository(t)
+			tt.args.m(storage)
+			service := &serviceImpl{
+				repository: storage,
+			}
+			err := service.AddMechanic(tt.fields.mechanic)
+			if (err != nil) != tt.wantErr || !errors.Is(err, tt.err) {
+				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
+				return
 			}
 		})
 	}

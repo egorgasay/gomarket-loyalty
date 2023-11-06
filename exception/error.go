@@ -3,8 +3,8 @@ package exception
 import "errors"
 
 var (
-	ErrLoginAlreadyExists = errors.New("login is already exists")
-	ErrEnabledData        = errors.New("enabled data")
+	ErrAlreadyExists = errors.New("already exists")
+	ErrEnabledData   = errors.New("enabled data")
 )
 
 func PanicIfNeeded(err interface{}) {

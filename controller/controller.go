@@ -18,6 +18,7 @@ func NewController(Service *service.Service) Controller {
 func (controller *Controller) Route(app *fiber.App) {
 	app.Get("/", controller.Base)
 	app.Post("/v1/user", controller.Create)
+	app.Post("/v1/mechanics", controller.RegisterMechanic)
 }
 
 func (controller *Controller) Base(c *fiber.Ctx) error {
@@ -31,6 +32,19 @@ func (controller *Controller) Create(c *fiber.Ctx) error {
 		return exception.ErrorHandler(c, err)
 	}
 	err := controller.service.Create(user)
+
+	return exception.ErrorHandler(c, err)
+
+}
+
+func (controller *Controller) RegisterMechanic(c *fiber.Ctx) error {
+	var bonus model.Mechanic
+
+	if err := c.BodyParser(&bonus); err != nil {
+		return exception.ErrorHandler(c, err)
+	}
+
+	err := controller.service.AddMechanic(bonus)
 
 	return exception.ErrorHandler(c, err)
 

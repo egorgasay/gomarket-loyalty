@@ -22,6 +22,26 @@ paths:
           description: Логин уже занят
         '500':
           description: Внутренняя ошибка сервера
+  /v1/mechanics:
+    post:
+      summary: Создание механики
+      description: Эндпоинт создании бонуса нового товара.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddBonus'
+      responses:
+        '200':
+          description: Механика успешно создана
+        '400':
+          description: Неверный формат запроса
+        '409':
+          description: Механика уже занят
+        '500':
+          description: Внутренняя ошибка сервера
+
 components:
   schemas:
     RegisterRequest:
@@ -29,3 +49,17 @@ components:
       properties:
         username:
           type: string
+    AddBonus:
+      type: object
+      properties:
+        match:
+          type: string
+        reward:
+          type: integer
+
+        reward_type:
+          type: string
+          enum:
+            - "%"
+            - "pt"
+          description:  "%-процент от покупки | pt-сумма"
