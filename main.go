@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	_ "gomarket-loyalty/config"
 	config2 "gomarket-loyalty/config"
@@ -16,18 +17,19 @@ func main() {
 	configuration := config2.New()
 	database := config2.NewMongoDatabase(configuration)
 
-	// Setup Repository
-	productRepository := repository.NewProductRepository(database)
+	// Setup repository
+	productRepository := repository.NewRepository(database)
 
 	// Setup Service
 	productService := service.NewProductService(&productRepository)
 
 	// Setup Controller
-	productController := controller.NewProductController(&productService)
+	productController := controller.NewController(&productService)
 
 	// Setup Fiber
 	app := fiber.New(config2.NewFiberConfig())
 	app.Use(recover.New())
+	app.Use(logger.New())
 
 	// Setup Routing
 	productController.Route(app)
