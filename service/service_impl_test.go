@@ -150,7 +150,7 @@ func Test_serviceImpl_AddMechanic(t *testing.T) {
 		err     error
 	}{
 		{
-			name: "Valid data1",
+			name: "ValidData1",
 			fields: fields{
 				mechanic: model.Mechanic{
 					Match:      "Огненная вода",
@@ -167,7 +167,7 @@ func Test_serviceImpl_AddMechanic(t *testing.T) {
 			err:     nil,
 		},
 		{
-			name: "Valid data2",
+			name: "ValidData2",
 			fields: fields{
 				mechanic: model.Mechanic{
 					Match:      "Дорогой воздух",
@@ -184,7 +184,7 @@ func Test_serviceImpl_AddMechanic(t *testing.T) {
 			err:     nil,
 		},
 		{
-			name: "invalid data1",
+			name: "invalidData1",
 			fields: fields{
 				mechanic: model.Mechanic{
 					Match:      "Дорогой воздух",
@@ -199,7 +199,7 @@ func Test_serviceImpl_AddMechanic(t *testing.T) {
 			err:     exception.ErrEnabledData,
 		},
 		{
-			name: "invalid data2",
+			name: "invalidData2",
 			fields: fields{
 				mechanic: model.Mechanic{
 					Match:      "Дорогой воздух",
@@ -214,7 +214,7 @@ func Test_serviceImpl_AddMechanic(t *testing.T) {
 			err:     exception.ErrEnabledData,
 		},
 		{
-			name: "already exists data",
+			name: "alreadyExistsData",
 			fields: fields{
 				mechanic: model.Mechanic{
 					Match:      "Дорогой воздух",
@@ -231,7 +231,7 @@ func Test_serviceImpl_AddMechanic(t *testing.T) {
 			err:     exception.ErrAlreadyExists,
 		},
 		{
-			name: "negative data",
+			name: "negativeData",
 			fields: fields{
 				mechanic: model.Mechanic{
 					Match:      "Дорогой воздух",
@@ -246,7 +246,7 @@ func Test_serviceImpl_AddMechanic(t *testing.T) {
 			err:     exception.ErrEnabledData,
 		},
 		{
-			name: "unxpected error",
+			name: "unxpectedError",
 			fields: fields{
 				mechanic: model.Mechanic{
 					Match:      "Дорогой воздух",

@@ -67,7 +67,7 @@ func Test_repositoryImpl_SetUser(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Valid user",
+			name: "ValidUser",
 
 			args: args{
 				user: model.User{
@@ -79,7 +79,7 @@ func Test_repositoryImpl_SetUser(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Duplicate user",
+			name: "DuplicateUser",
 			args: args{
 				user: model.User{
 					Login: "John Doe",
@@ -117,7 +117,7 @@ func Test_repositoryImpl_AddMechanic(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Valid bonus1",
+			name: "ValidBonus1",
 			args: args{
 				bonus: model.Mechanic{
 					Match:      "match",
@@ -128,7 +128,7 @@ func Test_repositoryImpl_AddMechanic(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Valid bonus2",
+			name: "ValidBonus2",
 			args: args{
 				bonus: model.Mechanic{
 					Match:      "match2",
@@ -139,7 +139,7 @@ func Test_repositoryImpl_AddMechanic(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "already exists",
+			name: "alreadyExists",
 			args: args{
 				bonus: model.Mechanic{
 					Match:      "match",

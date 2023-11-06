@@ -2,6 +2,7 @@ package service
 
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"gomarket-loyalty/constants"
 	"gomarket-loyalty/exception"
 	"gomarket-loyalty/model"
 	"gomarket-loyalty/repository"
@@ -39,7 +40,7 @@ func (service *serviceImpl) Create(request model.RegisterRequest) error {
 }
 
 func (service *serviceImpl) AddMechanic(bonus model.Mechanic) error {
-	if bonus.RewardType != "%" && bonus.RewardType != "pt" {
+	if bonus.RewardType != constants.Points && bonus.RewardType != constants.Percentage {
 		return exception.ErrEnabledData
 	}
 	if bonus.Reward <= 0 {
