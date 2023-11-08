@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"gomarket-loyalty/constants"
 	"gomarket-loyalty/exception"
@@ -68,4 +69,44 @@ func (service *serviceImpl) ValidateDataRegister(user model.RegisterRequest) err
 		return exception.ErrEnabledData
 	}
 	return nil
+}
+
+func (service *serviceImpl) CreateOrder(clientID string, orderID string, order model.Items) error {
+	var bonus int
+	for _, item := range order.Items {
+		if item.Count <= 0 || item.Price <= 0 {
+			continue
+		}
+		mechanic, err := service.repository.GetBonus(item.Id)
+		if err != nil {
+			return err
+		}
+		if mechanic.Match != "" {
+			bonus += service.AddBonus(mechanic, item)
+		}
+	}
+	transaction := model.Order{
+		Order: orderID,
+		Bonus: bonus,
+	}
+	err := service.repository.CreateOrder(transaction)
+	if err != nil {
+		return fmt.Errorf("error create order", err)
+	}
+	err = service.repository.UpdateBonusUser(clientID, bonus)
+	if err != nil {
+		return fmt.Errorf("error update bonus", err)
+	}
+	return nil
+}
+
+func (service *serviceImpl) AddBonus(mechanic model.Mechanic, item model.Item) int {
+	var oneBonus int
+	switch mechanic.RewardType {
+	case "pt":
+		oneBonus += mechanic.Reward
+	case "%":
+		oneBonus = (item.Price / 100) * mechanic.Reward
+	}
+	return oneBonus * item.Count
 }

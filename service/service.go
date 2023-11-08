@@ -10,4 +10,6 @@ type Service interface {
 	Create(request model.RegisterRequest) error
 	ValidateDataRegister(user model.RegisterRequest) error
 	AddMechanic(bonus model.Mechanic) error
+	AddBonus(mechanic model.Mechanic, item model.Item) int
+	CreateOrder(clientID string, orderID string, order model.Items) error
 }

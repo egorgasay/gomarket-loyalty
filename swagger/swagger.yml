@@ -41,7 +41,37 @@ paths:
           description: Механика уже занята
         '500':
           description: Внутренняя ошибка сервера
+  /v1/orders:
+    post:
+      summary: Создание заказа
+      description: Создает новый заказ
+      parameters:
+        - in: query
+          name: order_id
+          schema:
+            type: string
+          description: Идентификатор заказа
+        - in: query
+          name: client_id
+          schema:
+            type: string
+          description: Идентификатор клиента
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterOrder'
 
+      responses:
+        '200':
+          description: Заказ успешно обработан
+        '400':
+          description: Неверный формат запроса
+        '409':
+          description: Заказ уже принят в обработку
+        '500':
+          description: Внутренняя ошибка сервера
 components:
   schemas:
     RegisterRequest:
@@ -63,3 +93,19 @@ components:
             - "%"
             - "pt"
           description:  "%-процент от покупки | pt-сумма"
+    RegisterOrder:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              price:
+                type: integer
+              count:
+                type: integer
+      required:
+        - items

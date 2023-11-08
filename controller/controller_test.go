@@ -262,3 +262,225 @@ func TestController_RegisterMechanic(t *testing.T) {
 		})
 	}
 }
+
+func TestController_CreateOrder(t *testing.T) {
+	type mckS func(r *mocks.Service)
+	req := func(t []byte) *http.Request {
+		return httptest.NewRequest(http.MethodPost, "http://127.0.0.1:8080/v1/orders?order_id=234&client_id=234", bytes.NewBuffer(t))
+	}
+
+	type fields struct {
+		items model.Items
+	}
+	type args struct {
+		w *httptest.ResponseRecorder
+		r *http.Request
+		m mckS
+		t any
+	}
+	tests := []struct {
+		name     string
+		args     args
+		fields   fields
+		wantCode int
+	}{
+		{
+			name: "ValidData1",
+			args: args{
+				w: &httptest.ResponseRecorder{},
+				m: func(r *mocks.Service) {
+					r.On("CreateOrder", "234", "234", model.Items{
+						Items: []model.Item{
+							{Id: 234234324324, Price: 10, Count: 1},
+							{Id: 1235, Price: 13457623, Count: 345},
+							{Id: 235, Price: 323456, Count: 13464664},
+						},
+					}).Return(nil)
+				},
+				t: model.Items{
+					Items: []model.Item{
+						{Id: 234234324324, Price: 10, Count: 1},
+						{Id: 1235, Price: 13457623, Count: 345},
+						{Id: 235, Price: 323456, Count: 13464664},
+					},
+				},
+			},
+
+			wantCode: 200,
+		},
+		{
+			name: "ValidData2",
+			args: args{
+				w: &httptest.ResponseRecorder{},
+				m: func(r *mocks.Service) {
+					r.On("CreateOrder", "234", "234", model.Items{
+						Items: []model.Item{
+							{Id: 4634324324, Price: 2134, Count: 235},
+						},
+					}).Return(nil)
+				},
+				t: model.Items{
+					Items: []model.Item{
+						{Id: 4634324324, Price: 2134, Count: 235},
+					},
+				},
+			},
+			wantCode: 200,
+		},
+		{
+			name: "badJSON",
+			args: args{
+				w: &httptest.ResponseRecorder{},
+				m: func(r *mocks.Service) {},
+				t: `Logn: "dg"`,
+			},
+
+			wantCode: 400,
+		},
+		{
+			name: "emtyReward",
+			args: args{
+				w: &httptest.ResponseRecorder{},
+				m: func(r *mocks.Service) {
+					r.On("CreateOrder", "234", "234", model.Items{
+						Items: []model.Item{
+							{Id: 23421, Price: 0, Count: 1},
+						},
+					}).Return(exception.ErrEnabledData)
+				},
+				t: model.Items{
+					Items: []model.Item{
+						{Id: 23421, Price: 0, Count: 1},
+					},
+				},
+			},
+
+			wantCode: 400,
+		},
+		{
+			name: "emtyRewardCount",
+			args: args{
+				w: &httptest.ResponseRecorder{},
+				m: func(r *mocks.Service) {
+					r.On("CreateOrder", "234", "234", model.Items{
+						Items: []model.Item{
+							{Id: 2324324, Price: 7, Count: 0},
+						},
+					}).Return(exception.ErrEnabledData)
+				},
+				t: model.Items{
+					Items: []model.Item{
+						{Id: 2324324, Price: 7, Count: 0},
+					},
+				},
+			},
+
+			wantCode: 400,
+		},
+		{
+			name: "enegativeRewardPrice",
+			args: args{
+				w: &httptest.ResponseRecorder{},
+				m: func(r *mocks.Service) {
+					r.On("CreateOrder", "234", "234", model.Items{
+						Items: []model.Item{
+							{Id: 324, Price: -7, Count: 0},
+						},
+					}).Return(exception.ErrEnabledData)
+				},
+				t: model.Items{
+					Items: []model.Item{
+						{Id: 324, Price: -7, Count: 0},
+					},
+				},
+			},
+
+			wantCode: 400,
+		},
+		{
+			name: "negativeRewardCount",
+			args: args{
+				w: &httptest.ResponseRecorder{},
+				m: func(r *mocks.Service) {
+					r.On("CreateOrder", "234", "234", model.Items{
+						Items: []model.Item{
+							{Id: 224, Price: 7, Count: -2},
+						},
+					}).Return(exception.ErrEnabledData)
+				},
+				t: model.Items{
+					Items: []model.Item{
+						{Id: 224, Price: 7, Count: -2},
+					},
+				},
+			},
+
+			wantCode: 400,
+		},
+		{
+			name: "errAlreadyExists",
+			args: args{
+				w: &httptest.ResponseRecorder{},
+				m: func(r *mocks.Service) {
+					r.On("CreateOrder", "234", "234", model.Items{
+						Items: []model.Item{
+							{Id: 24324, Price: 2, Count: 1},
+						},
+					}).Return(exception.ErrAlreadyExists)
+				},
+				t: model.Items{
+					Items: []model.Item{
+						{Id: 24324, Price: 2, Count: 1},
+					},
+				},
+			},
+
+			wantCode: 409,
+		},
+		{
+			name: "unexpectedError",
+			args: args{
+				w: &httptest.ResponseRecorder{},
+				m: func(r *mocks.Service) {
+					r.On("CreateOrder", "234", "234", model.Items{
+						Items: []model.Item{
+							{Id: 234213, Price: 2, Count: 1},
+						},
+					}).Return(errors.ErrUnsupported)
+				},
+				t: model.Items{
+					Items: []model.Item{
+						{Id: 234213, Price: 2, Count: 1},
+					},
+				},
+			},
+			wantCode: 500,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			app := fiber.New()
+
+			logic := mocks.NewService(t)
+			tt.args.m(logic)
+
+			body, _ := json.Marshal(&tt.args.t)
+			tt.args.r = req(body)
+
+			tt.args.r.Header.Set("Content-Type", "application/json")
+
+			controller := &Controller{
+				service: logic,
+			}
+
+			app.Post("/v1/orders", controller.CreateOrder)
+			resp, err := app.Test(tt.args.r)
+			if err != nil {
+				return
+			}
+			assert.Equal(t, tt.wantCode, resp.StatusCode)
+
+		})
+	}
+}
