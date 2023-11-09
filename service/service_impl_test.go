@@ -279,3 +279,60 @@ func Test_serviceImpl_AddMechanic(t *testing.T) {
 		})
 	}
 }
+
+func Test_serviceImpl_CreateOrder(t *testing.T) {
+	type mckR func(r *mocks.Repository)
+
+	type fields struct {
+		clientID string
+		orderID  string
+		order    model.Items
+	}
+	type args struct {
+		m mckR
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+		err     error
+	}{
+		{
+			name: "ValidData1",
+			fields: fields{
+				clientID: "1",
+				orderID:  "1",
+				order: model.Items{
+					Items: []model.Item{
+						{
+							Id:    1,
+							Count: 1,
+							Price: 100,
+						},
+					},
+				},
+			},
+			args: args{
+				m: func(r *mocks.Repository) {
+					r.On("CreateOrder", "1").Return(model.Mechanic{Match: "1", Reward: 10, RewardType: "pt"})
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			storage := mocks.NewRepository(t)
+			tt.args.m(storage)
+			service := &serviceImpl{
+				repository: storage,
+			}
+			err := service.CreateOrder(tt.fields.clientID, tt.fields.orderID, tt.fields.order)
+			if (err != nil) != tt.wantErr || !errors.Is(err, tt.err) {
+				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}

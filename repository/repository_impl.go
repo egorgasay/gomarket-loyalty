@@ -49,7 +49,7 @@ func (repository *repositoryImpl) UpdateBonusUser(id string, bonus int) error {
 	ctx, cancel := config.NewMongoContext()
 	defer cancel()
 	filter := bson.M{"_id": id}
-	update := bson.M{"$set": bson.M{"bonus": bonus}}
+	update := bson.M{"$inc": bson.M{"bonus": bonus}}
 	_, err := repository.db.Collection("users").UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err
@@ -70,13 +70,17 @@ func (repository *repositoryImpl) CreateOrder(order model.Order) error {
 	return nil
 }
 
-func (repository *repositoryImpl) GetBonus(id int) (model.Mechanic, error) {
+func (repository *repositoryImpl) GetAllMechanics() ([]model.Mechanic, error) {
 	ctx, cancel := config.NewMongoContext()
 	defer cancel()
-	var mechanic model.Mechanic
-	err := repository.db.Collection("mechanics").FindOne(ctx, bson.M{"_id": id}).Decode(&mechanic)
+	var mechanics []model.Mechanic
+	cursor, err := repository.db.Collection("mechanics").Find(ctx, bson.M{})
 	if err != nil {
-		return mechanic, err
+		return mechanics, err
 	}
-	return mechanic, nil
+	err = cursor.All(ctx, &mechanics)
+	if err != nil {
+		return mechanics, err
+	}
+	return mechanics, nil
 }

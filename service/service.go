@@ -12,4 +12,5 @@ type Service interface {
 	AddMechanic(bonus model.Mechanic) error
 	AddBonus(mechanic model.Mechanic, item model.Item) int
 	CreateOrder(clientID string, orderID string, order model.Items) error
+	JSONRequest(reqModel, resModel interface{}, url string) (interface{}, error)
 }

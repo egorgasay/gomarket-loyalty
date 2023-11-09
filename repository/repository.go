@@ -8,5 +8,5 @@ type Repository interface {
 	AddMechanic(bonus model.Mechanic) error
 	UpdateBonusUser(id string, bonus int) error
 	CreateOrder(order model.Order) error
-	GetBonus(id int) (model.Mechanic, error)
+	GetAllMechanics() ([]model.Mechanic, error)
 }
