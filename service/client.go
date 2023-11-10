@@ -6,7 +6,15 @@ import (
 	"net/http"
 )
 
-func (service *serviceImpl) JSONRequest(reqModel, resModel interface{}, url string) (interface{}, error) {
+//go:generate go run github.com/vektra/mockery/v2@v2.20.0 --name=Client
+type Client interface {
+	JSONRequest(reqModel, resModel interface{}, url string) (interface{}, error)
+}
+
+type ClientJSON struct {
+}
+
+func (c ClientJSON) JSONRequest(reqModel, resModel interface{}, url string) (interface{}, error) {
 	body, err := json.Marshal(&reqModel)
 	if err != nil {
 		return nil, err

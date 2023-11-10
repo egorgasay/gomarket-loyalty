@@ -10,7 +10,7 @@ type Item struct {
 }
 
 type Order struct {
-	Order string `bson:"order"`
+	Order string `bson:"_id"`
 	Bonus int    `bson:"bonus"`
 }
 

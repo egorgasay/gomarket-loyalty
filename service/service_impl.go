@@ -13,11 +13,13 @@ import (
 func NewProductService(Repository *repository.Repository) Service {
 	return &serviceImpl{
 		repository: *Repository,
+		client:     ClientJSON{},
 	}
 }
 
 type serviceImpl struct {
 	repository repository.Repository
+	client     Client
 }
 
 func (service *serviceImpl) Base() string {
@@ -104,9 +106,9 @@ func (service *serviceImpl) CreateOrder(clientID string, orderID string, order m
 
 	// Send the request and get the response
 	var nameItems model.ResponseNameItems
-	resItems, err := service.JSONRequest(reqItems, nameItems, constants.URLGETNameItems)
+	resItems, err := service.client.JSONRequest(reqItems, &nameItems, constants.URLGETNameItems)
 	if err != nil {
-		return err
+		return fmt.Errorf("error getting name items: %w", err)
 	}
 
 	// Get all mechanics from the repository
@@ -155,9 +157,9 @@ func (service *serviceImpl) CreateOrder(clientID string, orderID string, order m
 func (service *serviceImpl) AddBonus(mechanic model.Mechanic, item model.Item) int {
 	var oneBonus int
 	switch mechanic.RewardType {
-	case "pt":
+	case constants.Points:
 		oneBonus += mechanic.Reward
-	case "%":
+	case constants.Percentage:
 		oneBonus = (item.Price / 100) * mechanic.Reward
 	}
 	return oneBonus * item.Count
