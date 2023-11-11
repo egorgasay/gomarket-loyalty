@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"gomarket-loyalty/constants"
@@ -26,7 +27,7 @@ func (service *serviceImpl) Base() string {
 	return "Hello World"
 }
 
-func (service *serviceImpl) Create(request model.RegisterRequest) error {
+func (service *serviceImpl) Create(ctx context.Context, request model.RegisterRequest) error {
 	err := service.ValidateDataRegister(request)
 	if err != nil {
 		return err
@@ -36,14 +37,14 @@ func (service *serviceImpl) Create(request model.RegisterRequest) error {
 		Login: request.Login,
 	}
 
-	err = service.repository.SetUser(user)
+	err = service.repository.SetUser(ctx, user)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (service *serviceImpl) AddMechanic(bonus model.Mechanic) error {
+func (service *serviceImpl) AddMechanic(ctx context.Context, bonus model.Mechanic) error {
 	if bonus.RewardType != constants.Points && bonus.RewardType != constants.Percentage {
 		return exception.ErrEnabledData
 	}
@@ -51,7 +52,7 @@ func (service *serviceImpl) AddMechanic(bonus model.Mechanic) error {
 		return exception.ErrEnabledData
 
 	}
-	err := service.repository.AddMechanic(bonus)
+	err := service.repository.AddMechanic(ctx, bonus)
 	if err != nil {
 		return err
 	}
@@ -75,7 +76,7 @@ func (service *serviceImpl) ValidateDataRegister(user model.RegisterRequest) err
 }
 
 // CreateOrder creates an order for a client with the specified clientID, orderID, and items.
-func (service *serviceImpl) CreateOrder(clientID string, orderID string, order model.Items) error {
+func (service *serviceImpl) CreateOrder(ctx context.Context, clientID string, orderID string, order model.Items) error {
 	// Initialize variables
 	var bonus int
 	var goodID []int
@@ -112,25 +113,33 @@ func (service *serviceImpl) CreateOrder(clientID string, orderID string, order m
 	}
 
 	// Get all mechanics from the repository
-	mechanics, err := service.repository.GetAllMechanics()
+	mechanics, err := service.repository.GetAllMechanics(ctx)
+	if err != nil {
+		return fmt.Errorf("error getting mechanics: %w", err)
+	}
 
-	// Iterate through each item in the response
-	for _, item := range resItems.(model.ResponseNameItems).Items {
-		// Iterate through each mechanic
-		for _, mechanic := range mechanics {
-			// Check if the item name contains the mechanic's match string
-			if strings.Contains(item.Name, mechanic.Match) {
-				// Create an order item with the item ID, price, and count
-				order := model.Item{
-					Id:    item.ID,
-					Price: item.Price,
-					Count: idCount[item.ID],
+	switch v := resItems.(type) {
+	case model.ResponseNameItems:
+		// Iterate through each item in the response
+		for _, item := range v.Items {
+			// Iterate through each mechanic
+			for _, mechanic := range mechanics {
+				// Check if the item name contains the mechanic's match string
+				if strings.Contains(item.Name, mechanic.Match) {
+					// Create an order item with the item ID, price, and count
+					order := model.Item{
+						Id:    item.ID,
+						Price: item.Price,
+						Count: idCount[item.ID],
+					}
+
+					// Add the bonus for the mechanic to the total bonus
+					bonus += service.AddBonus(mechanic, order)
 				}
-
-				// Add the bonus for the mechanic to the total bonus
-				bonus += service.AddBonus(mechanic, order)
 			}
 		}
+	default:
+		return fmt.Errorf("invalid response type: %T", v)
 	}
 
 	// Create an order transaction with the order ID and bonus
@@ -140,13 +149,13 @@ func (service *serviceImpl) CreateOrder(clientID string, orderID string, order m
 	}
 
 	// Create the order transaction in the repository
-	err = service.repository.CreateOrder(transaction)
+	err = service.repository.CreateOrder(ctx, transaction)
 	if err != nil {
 		return fmt.Errorf("error creating order: %w", err)
 	}
 
 	// Update the bonus for the client in the repository
-	err = service.repository.UpdateBonusUser(clientID, bonus)
+	err = service.repository.UpdateBonusUser(ctx, clientID, bonus)
 	if err != nil {
 		return fmt.Errorf("error updating bonus: %w", err)
 	}

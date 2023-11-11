@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"github.com/stretchr/testify/mock"
 	"gomarket-loyalty/constants"
@@ -36,7 +37,7 @@ func Test_serviceImpl_Create(t *testing.T) {
 			},
 			args: args{
 				m: func(r *mocks.Repository) {
-					r.On("SetUser", mock.Anything).Return(nil)
+					r.On("SetUser", context.Background(), mock.Anything).Return(nil)
 				},
 			},
 			wantErr: false,
@@ -50,7 +51,7 @@ func Test_serviceImpl_Create(t *testing.T) {
 			},
 			args: args{
 				m: func(r *mocks.Repository) {
-					r.On("SetUser", mock.Anything).Return(nil)
+					r.On("SetUser", context.Background(), mock.Anything).Return(nil)
 				},
 			},
 			wantErr: false,
@@ -76,7 +77,7 @@ func Test_serviceImpl_Create(t *testing.T) {
 			},
 			args: args{
 				m: func(r *mocks.Repository) {
-					r.On("SetUser", mock.Anything).Return(exception.ErrAlreadyExists)
+					r.On("SetUser", context.Background(), mock.Anything).Return(exception.ErrAlreadyExists)
 				},
 			},
 			wantErr: true,
@@ -90,7 +91,7 @@ func Test_serviceImpl_Create(t *testing.T) {
 			service := &serviceImpl{
 				repository: storage,
 			}
-			err := service.Create(tt.fields.userRequest)
+			err := service.Create(context.Background(), tt.fields.userRequest)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -162,7 +163,7 @@ func Test_serviceImpl_AddMechanic(t *testing.T) {
 			},
 			args: args{
 				m: func(r *mocks.Repository) {
-					r.On("AddMechanic", mock.Anything).Return(nil)
+					r.On("AddMechanic", context.Background(), mock.Anything).Return(nil)
 				},
 			},
 			wantErr: false,
@@ -179,7 +180,7 @@ func Test_serviceImpl_AddMechanic(t *testing.T) {
 			},
 			args: args{
 				m: func(r *mocks.Repository) {
-					r.On("AddMechanic", mock.Anything).Return(nil)
+					r.On("AddMechanic", context.Background(), mock.Anything).Return(nil)
 				},
 			},
 			wantErr: false,
@@ -226,7 +227,7 @@ func Test_serviceImpl_AddMechanic(t *testing.T) {
 			},
 			args: args{
 				m: func(r *mocks.Repository) {
-					r.On("AddMechanic", mock.Anything).Return(exception.ErrAlreadyExists)
+					r.On("AddMechanic", context.Background(), mock.Anything).Return(exception.ErrAlreadyExists)
 				},
 			},
 			wantErr: true,
@@ -258,7 +259,7 @@ func Test_serviceImpl_AddMechanic(t *testing.T) {
 			},
 			args: args{
 				m: func(r *mocks.Repository) {
-					r.On("AddMechanic", mock.Anything).Return(errors.ErrUnsupported)
+					r.On("AddMechanic", context.Background(), mock.Anything).Return(errors.ErrUnsupported)
 				},
 			},
 			wantErr: true,
@@ -273,7 +274,7 @@ func Test_serviceImpl_AddMechanic(t *testing.T) {
 			service := &serviceImpl{
 				repository: storage,
 			}
-			err := service.AddMechanic(tt.fields.mechanic)
+			err := service.AddMechanic(context.Background(), tt.fields.mechanic)
 			if (err != nil) != tt.wantErr || !errors.Is(err, tt.err) {
 				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -319,12 +320,12 @@ func Test_serviceImpl_CreateOrder(t *testing.T) {
 			},
 			args: args{
 				m: func(r *mocks.Repository) {
-					r.On("GetAllMechanics").Return([]model.Mechanic{
+					r.On("GetAllMechanics", context.Background()).Return([]model.Mechanic{
 						{Match: "Помидорка", Reward: 10, RewardType: "pt"},
 						{Match: "ми", Reward: 10, RewardType: "pt"},
 					}, nil)
-					r.On("CreateOrder", model.Order{Order: "1", Bonus: 20}).Return(nil)
-					r.On("UpdateBonusUser", "1", 20).Return(nil)
+					r.On("CreateOrder", context.Background(), model.Order{Order: "1", Bonus: 20}).Return(nil)
+					r.On("UpdateBonusUser", context.Background(), "1", 20).Return(nil)
 				},
 				mCl: func(r *mc.Client) {
 					r.On("JSONRequest", model.RequestNameItems{Offset: 0, Limit: 1000,
@@ -357,12 +358,12 @@ func Test_serviceImpl_CreateOrder(t *testing.T) {
 			},
 			args: args{
 				m: func(r *mocks.Repository) {
-					r.On("GetAllMechanics").Return([]model.Mechanic{
+					r.On("GetAllMechanics", context.Background()).Return([]model.Mechanic{
 						{Match: "По", Reward: 10, RewardType: "pt"},
 						{Match: "ми", Reward: 10, RewardType: "%"},
 					}, nil)
-					r.On("CreateOrder", model.Order{Order: "2", Bonus: 70}).Return(nil)
-					r.On("UpdateBonusUser", "2", 70).Return(nil)
+					r.On("CreateOrder", context.Background(), model.Order{Order: "2", Bonus: 70}).Return(nil)
+					r.On("UpdateBonusUser", context.Background(), "2", 70).Return(nil)
 				},
 				mCl: func(r *mc.Client) {
 					r.On("JSONRequest", model.RequestNameItems{Offset: 0, Limit: 1000,
@@ -407,14 +408,14 @@ func Test_serviceImpl_CreateOrder(t *testing.T) {
 			},
 			args: args{
 				m: func(r *mocks.Repository) {
-					r.On("GetAllMechanics").Return([]model.Mechanic{
+					r.On("GetAllMechanics", context.Background()).Return([]model.Mechanic{
 						{Match: "По", Reward: 10, RewardType: "pt"},
 						{Match: "ми", Reward: 10, RewardType: "%"},
 						{Match: "си", Reward: 10, RewardType: "pt"},
 						{Match: "окно", Reward: 10, RewardType: "%"},
 					}, nil)
-					r.On("CreateOrder", model.Order{Order: "4", Bonus: 17700}).Return(nil)
-					r.On("UpdateBonusUser", "3", 17700).Return(nil)
+					r.On("CreateOrder", context.Background(), model.Order{Order: "4", Bonus: 17700}).Return(nil)
+					r.On("UpdateBonusUser", context.Background(), "3", 17700).Return(nil)
 				},
 				mCl: func(r *mc.Client) {
 					r.On("JSONRequest", model.RequestNameItems{Offset: 0, Limit: 1000,
@@ -502,13 +503,13 @@ func Test_serviceImpl_CreateOrder(t *testing.T) {
 			},
 			args: args{
 				m: func(r *mocks.Repository) {
-					r.On("GetAllMechanics").Return([]model.Mechanic{
+					r.On("GetAllMechanics", context.Background()).Return([]model.Mechanic{
 						{Match: "По", Reward: 10, RewardType: "pt"},
 						{Match: "ми", Reward: 10, RewardType: "%"},
 						{Match: "си", Reward: 10, RewardType: "pt"},
 						{Match: "окно", Reward: 10, RewardType: "%"},
 					}, nil)
-					r.On("CreateOrder", model.Order{Order: "4", Bonus: 17700}).Return(exception.ErrAlreadyExists)
+					r.On("CreateOrder", context.Background(), model.Order{Order: "4", Bonus: 17700}).Return(exception.ErrAlreadyExists)
 				},
 				mCl: func(r *mc.Client) {
 					r.On("JSONRequest", model.RequestNameItems{Offset: 0, Limit: 1000,
@@ -556,13 +557,13 @@ func Test_serviceImpl_CreateOrder(t *testing.T) {
 			},
 			args: args{
 				m: func(r *mocks.Repository) {
-					r.On("GetAllMechanics").Return([]model.Mechanic{
+					r.On("GetAllMechanics", context.Background()).Return([]model.Mechanic{
 						{Match: "По", Reward: 10, RewardType: "pt"},
 						{Match: "чт", Reward: 50, RewardType: "%"},
 						{Match: "си", Reward: 10, RewardType: "pt"},
 					}, nil)
-					r.On("CreateOrder", model.Order{Order: "4", Bonus: 740}).Return(nil)
-					r.On("UpdateBonusUser", "3", 740).Return(nil)
+					r.On("CreateOrder", context.Background(), model.Order{Order: "4", Bonus: 740}).Return(nil)
+					r.On("UpdateBonusUser", context.Background(), "3", 740).Return(nil)
 				},
 				mCl: func(r *mc.Client) {
 					r.On("JSONRequest", model.RequestNameItems{Offset: 0, Limit: 1000,
@@ -587,7 +588,7 @@ func Test_serviceImpl_CreateOrder(t *testing.T) {
 				repository: storage,
 				client:     clientJSON,
 			}
-			err := service.CreateOrder(tt.fields.clientID, tt.fields.orderID, tt.fields.order)
+			err := service.CreateOrder(context.Background(), tt.fields.clientID, tt.fields.orderID, tt.fields.order)
 			if (err != nil) != tt.wantErr || !errors.Is(err, tt.err) {
 				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
 				return

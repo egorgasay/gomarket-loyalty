@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"github.com/gofiber/fiber/v2"
 	"gomarket-loyalty/exception"
 	"gomarket-loyalty/model"
@@ -29,10 +30,14 @@ func (controller *Controller) Base(c *fiber.Ctx) error {
 
 func (controller *Controller) Create(c *fiber.Ctx) error {
 	var user model.RegisterRequest
+
+	ctx, cancel := context.WithCancel(c.Context())
+	defer cancel()
+
 	if err := c.BodyParser(&user); err != nil {
 		return exception.ErrorHandler(c, err)
 	}
-	err := controller.service.Create(user)
+	err := controller.service.Create(ctx, user)
 
 	return exception.ErrorHandler(c, err)
 
@@ -41,11 +46,14 @@ func (controller *Controller) Create(c *fiber.Ctx) error {
 func (controller *Controller) RegisterMechanic(c *fiber.Ctx) error {
 	var bonus model.Mechanic
 
+	ctx, cancel := context.WithCancel(c.Context())
+	defer cancel()
+
 	if err := c.BodyParser(&bonus); err != nil {
 		return exception.ErrorHandler(c, err)
 	}
 
-	err := controller.service.AddMechanic(bonus)
+	err := controller.service.AddMechanic(ctx, bonus)
 
 	return exception.ErrorHandler(c, err)
 
@@ -53,6 +61,10 @@ func (controller *Controller) RegisterMechanic(c *fiber.Ctx) error {
 
 func (controller *Controller) CreateOrder(c *fiber.Ctx) error {
 	var order model.Items
+
+	ctx, cancel := context.WithCancel(c.Context())
+	defer cancel()
+
 	orderID := c.Query("order_id")
 	clientID := c.Query("client_id")
 	if clientID == "" || orderID == "" {
@@ -63,7 +75,7 @@ func (controller *Controller) CreateOrder(c *fiber.Ctx) error {
 		return exception.ErrorHandler(c, err)
 	}
 
-	err := controller.service.CreateOrder(clientID, orderID, order)
+	err := controller.service.CreateOrder(ctx, clientID, orderID, order)
 	return exception.ErrorHandler(c, err)
 
 }

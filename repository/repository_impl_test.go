@@ -99,7 +99,7 @@ func Test_repositoryImpl_SetUser(t *testing.T) {
 			repository := &repositoryImpl{
 				db: res.client.Database("golang_test"),
 			}
-			if err := repository.SetUser(tt.args.user); (err != nil) != tt.wantErr {
+			if err := repository.SetUser(context.Background(), tt.args.user); (err != nil) != tt.wantErr {
 				t.Errorf("SetUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -161,7 +161,7 @@ func Test_repositoryImpl_AddMechanic(t *testing.T) {
 			repository := &repositoryImpl{
 				db: res.client.Database("golang_test"),
 			}
-			if err := repository.AddMechanic(tt.args.bonus); (err != nil) != tt.wantErr {
+			if err := repository.AddMechanic(context.Background(), tt.args.bonus); (err != nil) != tt.wantErr {
 				t.Errorf("Mechanic() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -220,7 +220,7 @@ func Test_repositoryImpl_UpdateBonusUser(t *testing.T) {
 			repository := &repositoryImpl{
 				db: res.client.Database("golang_test"),
 			}
-			if err := repository.UpdateBonusUser(tt.args.id, tt.args.bonus); (err != nil) != tt.wantErr {
+			if err := repository.UpdateBonusUser(context.Background(), tt.args.id, tt.args.bonus); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateBonusUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			func() {
@@ -281,7 +281,7 @@ func Test_repositoryImpl_CreateOrder(t *testing.T) {
 				db: res.client.Database("golang_test"),
 			}
 
-			if err := repository.CreateOrder(tt.args.order); (err != nil) != tt.wantErr {
+			if err := repository.CreateOrder(context.Background(), tt.args.order); (err != nil) != tt.wantErr {
 				t.Errorf("CreateOrder() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -324,7 +324,7 @@ func Test_repositoryImpl_GetAllMechanics(t *testing.T) {
 				db: res.client.Database("golang_test"),
 			}
 
-			got, err := repository.GetAllMechanics()
+			got, err := repository.GetAllMechanics(context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetAllMechanics() error = %v, wantErr %v", err, tt.wantErr)
 				return
