@@ -4,6 +4,7 @@ import (
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gomarket-loyalty/exception"
 	"gomarket-loyalty/model"
 )
@@ -78,4 +79,19 @@ func (repository *repositoryImpl) GetAllMechanics(ctx context.Context) ([]model.
 	}
 
 	return mechanics, nil
+}
+
+func (repository *repositoryImpl) GetInfoOrders(ctx context.Context, clientID string) ([]model.Order, error) {
+	var orders []model.Order
+	opts := options.Find().SetSort(bson.M{"time": -1})
+	cursor, err := repository.db.Collection("order").Find(ctx, bson.M{"user": clientID}, opts)
+	if err != nil {
+		return orders, err
+	}
+
+	err = cursor.All(ctx, &orders)
+	if err != nil {
+		return orders, err
+	}
+	return orders, nil
 }

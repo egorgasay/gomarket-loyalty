@@ -10,8 +10,10 @@ type Item struct {
 }
 
 type Order struct {
-	Order string `bson:"_id"`
-	Bonus int    `bson:"bonus"`
+	User  string `bson:"user"`
+	Order string `bson:"_id" json:"number"`
+	Bonus int    `bson:"bonus" json:"accrual"`
+	Time  string `bson:"time" json:"upload_time"`
 }
 
 type RequestNameItems struct {

@@ -9,7 +9,9 @@ import (
 	"gomarket-loyalty/model"
 	"gomarket-loyalty/repository/mocks"
 	mc "gomarket-loyalty/service/mocks"
+	"reflect"
 	"testing"
+	"time"
 )
 
 func Test_serviceImpl_Create(t *testing.T) {
@@ -324,7 +326,7 @@ func Test_serviceImpl_CreateOrder(t *testing.T) {
 						{Match: "Помидорка", Reward: 10, RewardType: "pt"},
 						{Match: "ми", Reward: 10, RewardType: "pt"},
 					}, nil)
-					r.On("CreateOrder", context.Background(), model.Order{Order: "1", Bonus: 20}).Return(nil)
+					r.On("CreateOrder", context.Background(), model.Order{Order: "1", Bonus: 20, Time: time.Now().Format(constants.FormatTime), User: "1"}).Return(nil)
 					r.On("UpdateBonusUser", context.Background(), "1", 20).Return(nil)
 				},
 				mCl: func(r *mc.Client) {
@@ -362,7 +364,7 @@ func Test_serviceImpl_CreateOrder(t *testing.T) {
 						{Match: "По", Reward: 10, RewardType: "pt"},
 						{Match: "ми", Reward: 10, RewardType: "%"},
 					}, nil)
-					r.On("CreateOrder", context.Background(), model.Order{Order: "2", Bonus: 70}).Return(nil)
+					r.On("CreateOrder", context.Background(), model.Order{Order: "2", Bonus: 70, Time: time.Now().Format(constants.FormatTime), User: "2"}).Return(nil)
 					r.On("UpdateBonusUser", context.Background(), "2", 70).Return(nil)
 				},
 				mCl: func(r *mc.Client) {
@@ -414,7 +416,7 @@ func Test_serviceImpl_CreateOrder(t *testing.T) {
 						{Match: "си", Reward: 10, RewardType: "pt"},
 						{Match: "окно", Reward: 10, RewardType: "%"},
 					}, nil)
-					r.On("CreateOrder", context.Background(), model.Order{Order: "4", Bonus: 17700}).Return(nil)
+					r.On("CreateOrder", context.Background(), model.Order{Order: "4", User: "3", Bonus: 17700, Time: time.Now().Format(constants.FormatTime)}).Return(nil)
 					r.On("UpdateBonusUser", context.Background(), "3", 17700).Return(nil)
 				},
 				mCl: func(r *mc.Client) {
@@ -509,7 +511,7 @@ func Test_serviceImpl_CreateOrder(t *testing.T) {
 						{Match: "си", Reward: 10, RewardType: "pt"},
 						{Match: "окно", Reward: 10, RewardType: "%"},
 					}, nil)
-					r.On("CreateOrder", context.Background(), model.Order{Order: "4", Bonus: 17700}).Return(exception.ErrAlreadyExists)
+					r.On("CreateOrder", context.Background(), model.Order{Order: "4", Bonus: 17700, Time: time.Now().Format(constants.FormatTime), User: "3"}).Return(exception.ErrAlreadyExists)
 				},
 				mCl: func(r *mc.Client) {
 					r.On("JSONRequest", model.RequestNameItems{Offset: 0, Limit: 1000,
@@ -562,7 +564,7 @@ func Test_serviceImpl_CreateOrder(t *testing.T) {
 						{Match: "чт", Reward: 50, RewardType: "%"},
 						{Match: "си", Reward: 10, RewardType: "pt"},
 					}, nil)
-					r.On("CreateOrder", context.Background(), model.Order{Order: "4", Bonus: 740}).Return(nil)
+					r.On("CreateOrder", context.Background(), model.Order{Order: "4", Bonus: 740, Time: time.Now().Format(constants.FormatTime), User: "3"}).Return(nil)
 					r.On("UpdateBonusUser", context.Background(), "3", 740).Return(nil)
 				},
 				mCl: func(r *mc.Client) {
@@ -591,6 +593,72 @@ func Test_serviceImpl_CreateOrder(t *testing.T) {
 			err := service.CreateOrder(context.Background(), tt.fields.clientID, tt.fields.orderID, tt.fields.order)
 			if (err != nil) != tt.wantErr || !errors.Is(err, tt.err) {
 				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}
+
+func Test_serviceImpl_GetInfoOrders(t *testing.T) {
+
+	type mckR func(r *mocks.Repository)
+
+	type args struct {
+		m  mckR
+		id string
+	}
+
+	testData := map[string][]model.Order{
+		"1": {model.Order{User: "1", Order: "123", Bonus: 100, Time: "2023-01-01 12:00:00"},
+			model.Order{User: "1", Order: "12w3r3", Bonus: 100, Time: "2023-01-01 12:00:01"},
+			model.Order{User: "1", Order: "12sef33", Bonus: 100, Time: "2023-01-01 12:00:20"}},
+		"2": {model.Order{User: "1", Order: "123", Bonus: 100, Time: "2023-01-01 12:00:00"},
+			model.Order{User: "1", Order: "12w3r3", Bonus: 100, Time: "2023-01-01 12:00:01"},
+			model.Order{User: "1", Order: "12sef33", Bonus: 100, Time: "2023-01-01 12:00:20"}},
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+		wantRes []model.Order
+	}{
+		{
+			name: "positiveTest1",
+			args: args{
+				m: func(r *mocks.Repository) {
+					r.On("GetInfoOrders", mock.Anything, "1").Return(testData["1"], nil)
+				},
+				id: "1",
+			},
+			wantErr: false,
+			wantRes: testData["1"],
+		},
+		{
+			name: "errTest2",
+			args: args{
+				m: func(r *mocks.Repository) {
+					r.On("GetInfoOrders", mock.Anything, "2").Return(nil, exception.ErrNotFound)
+				},
+				id: "2",
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			storage := mocks.NewRepository(t)
+			tt.args.m(storage)
+			service := &serviceImpl{
+				repository: storage,
+			}
+			res, err := service.GetInfoOrders(context.Background(), tt.args.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Create() error = %v", err)
+				return
+			}
+			if !reflect.DeepEqual(res, tt.wantRes) {
+				t.Errorf("Create() got = %v, want %v", res, tt.wantRes)
 				return
 			}
 		})

@@ -9,6 +9,7 @@ import (
 	"gomarket-loyalty/model"
 	"gomarket-loyalty/repository"
 	"strings"
+	"time"
 )
 
 func NewProductService(Repository *repository.Repository) Service {
@@ -144,8 +145,10 @@ func (service *serviceImpl) CreateOrder(ctx context.Context, clientID string, or
 
 	// Create an order transaction with the order ID and bonus
 	transaction := model.Order{
+		User:  clientID,
 		Order: orderID,
 		Bonus: bonus,
+		Time:  time.Now().Format(constants.FormatTime),
 	}
 
 	// Create the order transaction in the repository
@@ -172,4 +175,17 @@ func (service *serviceImpl) AddBonus(mechanic model.Mechanic, item model.Item) i
 		oneBonus = (item.Price / 100) * mechanic.Reward
 	}
 	return oneBonus * item.Count
+}
+
+func (service *serviceImpl) GetInfoOrders(ctx context.Context, id string) ([]model.Order, error) {
+
+	orders, err := service.repository.GetInfoOrders(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if len(orders) == 0 {
+		return nil, exception.ErrNotFound
+	}
+	return orders, nil
+
 }

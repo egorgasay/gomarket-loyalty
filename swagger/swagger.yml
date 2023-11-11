@@ -62,7 +62,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RegisterOrder'
-
       responses:
         '200':
           description: Заказ успешно обработан
@@ -72,6 +71,35 @@ paths:
           description: Заказ уже принят в обработку
         '500':
           description: Внутренняя ошибка сервера
+    get:
+      summary:  Получение списка номеров заказов
+      description: Получение списка номеров заказов
+      parameters:
+        - in: query
+          name: client_id
+          schema:
+            type: string
+          description: Идентификатор клиента
+      responses:
+        '200':
+          description: Заказ успешно обработан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '204':
+            description: Нет данных для ответа.
+        '400':
+          description: Неверный формат запроса
+        '409':
+          description: Заказ уже принят в обработку
+        '500':
+          description: Внутренняя ошибка сервера
+
+
+
+
+
 components:
   schemas:
     RegisterRequest:
@@ -109,3 +137,14 @@ components:
                 type: integer
       required:
         - items
+    Order:
+      type : object
+      properties:
+        order_id:
+          type: string
+        client_id:
+          type: string
+        accrual:
+          type: integer
+        uploaded_at:
+          type: string

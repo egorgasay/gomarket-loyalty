@@ -12,4 +12,5 @@ type Repository interface {
 	UpdateBonusUser(ctx context.Context, id string, bonus int) error
 	CreateOrder(ctx context.Context, order model.Order) error
 	GetAllMechanics(ctx context.Context) ([]model.Mechanic, error)
+	GetInfoOrders(ctx context.Context, clientID string) ([]model.Order, error)
 }

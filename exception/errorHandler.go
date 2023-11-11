@@ -17,16 +17,16 @@ func ErrorHandler(c *fiber.Ctx, err error) error {
 				"message": err,
 			})
 		}
-		if errors.Is(err, ErrEnabledData) {
+		if errors.Is(err, ErrEnabledData) || errors.As(err, &unmarshalTypeError) {
 			err := fmt.Sprintf("enabled data %s", err)
 			return c.Status(400).JSON(fiber.Map{
 				"message": err,
 			})
 		}
 
-		if errors.As(err, &unmarshalTypeError) {
-			err := fmt.Sprintf("error create user %s", err)
-			return c.Status(400).JSON(fiber.Map{
+		if errors.Is(err, ErrNotFound) {
+			err := fmt.Sprintf("error not data %s", err)
+			return c.Status(204).JSON(fiber.Map{
 				"message": err,
 			})
 		}

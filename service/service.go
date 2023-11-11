@@ -13,4 +13,5 @@ type Service interface {
 	AddMechanic(ctx context.Context, bonus model.Mechanic) error
 	AddBonus(mechanic model.Mechanic, item model.Item) int
 	CreateOrder(ctx context.Context, clientID string, orderID string, order model.Items) error
+	GetInfoOrders(ctx context.Context, clientID string) ([]model.Order, error)
 }

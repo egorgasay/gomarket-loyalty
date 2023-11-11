@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"gomarket-loyalty/exception"
 	"gomarket-loyalty/model"
 	"gomarket-loyalty/service/mocks"
@@ -37,7 +38,7 @@ func TestController_Create(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("Create", model.RegisterRequest{Login: "login"}).Return(nil)
+					r.On("Create", mock.Anything, model.RegisterRequest{Login: "login"}).Return(nil)
 				},
 				t: model.RegisterRequest{Login: "login"},
 			},
@@ -48,7 +49,7 @@ func TestController_Create(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("Create", model.RegisterRequest{Login: "login1"}).Return(nil)
+					r.On("Create", mock.Anything, model.RegisterRequest{Login: "login1"}).Return(nil)
 				},
 				t: model.RegisterRequest{Login: "login1"},
 			},
@@ -69,7 +70,7 @@ func TestController_Create(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("Create", model.RegisterRequest{Login: ""}).Return(exception.ErrEnabledData)
+					r.On("Create", mock.Anything, model.RegisterRequest{Login: ""}).Return(exception.ErrEnabledData)
 				},
 				t: model.RegisterRequest{Login: ""},
 			},
@@ -81,7 +82,7 @@ func TestController_Create(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("Create", model.RegisterRequest{Login: ""}).Return(errors.New("unexpectedError"))
+					r.On("Create", mock.Anything, model.RegisterRequest{Login: ""}).Return(errors.New("unexpectedError"))
 				},
 				t: model.RegisterRequest{Login: ""},
 			},
@@ -106,6 +107,7 @@ func TestController_Create(t *testing.T) {
 
 			app.Post("/v1/user", controller.Create)
 			resp, err := app.Test(tt.args.r)
+
 			if err != nil {
 				return
 			}
@@ -137,7 +139,7 @@ func TestController_RegisterMechanic(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("AddMechanic", model.Mechanic{Match: "match", RewardType: "pt", Reward: 10}).Return(nil)
+					r.On("AddMechanic", mock.Anything, model.Mechanic{Match: "match", RewardType: "pt", Reward: 10}).Return(nil)
 				},
 				t: model.Mechanic{Match: "match", RewardType: "pt", Reward: 10},
 			},
@@ -148,7 +150,7 @@ func TestController_RegisterMechanic(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("AddMechanic", model.Mechanic{Match: "match2", RewardType: "%", Reward: 10}).Return(nil)
+					r.On("AddMechanic", mock.Anything, model.Mechanic{Match: "match2", RewardType: "%", Reward: 10}).Return(nil)
 				},
 				t: model.Mechanic{Match: "match2", RewardType: "%", Reward: 10},
 			},
@@ -169,7 +171,7 @@ func TestController_RegisterMechanic(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("AddMechanic", model.Mechanic{Match: "match3", RewardType: "%"}).Return(exception.ErrEnabledData)
+					r.On("AddMechanic", mock.Anything, model.Mechanic{Match: "match3", RewardType: "%"}).Return(exception.ErrEnabledData)
 				},
 				t: model.Mechanic{Match: "match3", RewardType: "%"},
 			},
@@ -181,7 +183,7 @@ func TestController_RegisterMechanic(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("AddMechanic", model.Mechanic{Match: "match3", RewardType: ""}).Return(exception.ErrEnabledData)
+					r.On("AddMechanic", mock.Anything, model.Mechanic{Match: "match3", RewardType: ""}).Return(exception.ErrEnabledData)
 				},
 				t: model.Mechanic{Match: "match3", RewardType: ""},
 			},
@@ -193,7 +195,7 @@ func TestController_RegisterMechanic(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("AddMechanic", model.Mechanic{Match: "match3", RewardType: "$"}).Return(exception.ErrEnabledData)
+					r.On("AddMechanic", mock.Anything, model.Mechanic{Match: "match3", RewardType: "$"}).Return(exception.ErrEnabledData)
 				},
 				t: model.Mechanic{Match: "match3", RewardType: "$"},
 			},
@@ -205,7 +207,7 @@ func TestController_RegisterMechanic(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("AddMechanic", model.Mechanic{Match: "match4", Reward: -1, RewardType: "%"}).Return(exception.ErrEnabledData)
+					r.On("AddMechanic", mock.Anything, model.Mechanic{Match: "match4", Reward: -1, RewardType: "%"}).Return(exception.ErrEnabledData)
 				},
 				t: model.Mechanic{Match: "match4", Reward: -1, RewardType: "%"},
 			},
@@ -217,7 +219,7 @@ func TestController_RegisterMechanic(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("AddMechanic", model.Mechanic{Match: "match34", Reward: 1, RewardType: "%"}).Return(exception.ErrAlreadyExists)
+					r.On("AddMechanic", mock.Anything, model.Mechanic{Match: "match34", Reward: 1, RewardType: "%"}).Return(exception.ErrAlreadyExists)
 				},
 				t: model.Mechanic{Match: "match34", Reward: 1, RewardType: "%"},
 			},
@@ -229,7 +231,7 @@ func TestController_RegisterMechanic(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("AddMechanic", model.Mechanic{Match: "match34", Reward: 1, RewardType: "%"}).Return(errors.New("unexpectedError"))
+					r.On("AddMechanic", mock.Anything, model.Mechanic{Match: "match34", Reward: 1, RewardType: "%"}).Return(errors.New("unexpectedError"))
 				},
 				t: model.Mechanic{Match: "match34", Reward: 1, RewardType: "%"},
 			},
@@ -289,7 +291,7 @@ func TestController_CreateOrder(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("CreateOrder", "234", "234", model.Items{
+					r.On("CreateOrder", mock.Anything, "234", "234", model.Items{
 						Items: []model.Item{
 							{Id: 234234324324, Price: 10, Count: 1},
 							{Id: 1235, Price: 13457623, Count: 345},
@@ -313,7 +315,7 @@ func TestController_CreateOrder(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("CreateOrder", "234", "234", model.Items{
+					r.On("CreateOrder", mock.Anything, "234", "234", model.Items{
 						Items: []model.Item{
 							{Id: 4634324324, Price: 2134, Count: 235},
 						},
@@ -342,7 +344,7 @@ func TestController_CreateOrder(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("CreateOrder", "234", "234", model.Items{
+					r.On("CreateOrder", mock.Anything, "234", "234", model.Items{
 						Items: []model.Item{
 							{Id: 23421, Price: 0, Count: 1},
 						},
@@ -362,7 +364,7 @@ func TestController_CreateOrder(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("CreateOrder", "234", "234", model.Items{
+					r.On("CreateOrder", mock.Anything, "234", "234", model.Items{
 						Items: []model.Item{
 							{Id: 2324324, Price: 7, Count: 0},
 						},
@@ -382,7 +384,7 @@ func TestController_CreateOrder(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("CreateOrder", "234", "234", model.Items{
+					r.On("CreateOrder", mock.Anything, "234", "234", model.Items{
 						Items: []model.Item{
 							{Id: 324, Price: -7, Count: 0},
 						},
@@ -402,7 +404,7 @@ func TestController_CreateOrder(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("CreateOrder", "234", "234", model.Items{
+					r.On("CreateOrder", mock.Anything, "234", "234", model.Items{
 						Items: []model.Item{
 							{Id: 224, Price: 7, Count: -2},
 						},
@@ -422,7 +424,7 @@ func TestController_CreateOrder(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("CreateOrder", "234", "234", model.Items{
+					r.On("CreateOrder", mock.Anything, "234", "234", model.Items{
 						Items: []model.Item{
 							{Id: 24324, Price: 2, Count: 1},
 						},
@@ -442,7 +444,7 @@ func TestController_CreateOrder(t *testing.T) {
 			args: args{
 				w: &httptest.ResponseRecorder{},
 				m: func(r *mocks.Service) {
-					r.On("CreateOrder", "234", "234", model.Items{
+					r.On("CreateOrder", mock.Anything, "234", "234", model.Items{
 						Items: []model.Item{
 							{Id: 234213, Price: 2, Count: 1},
 						},
@@ -475,6 +477,95 @@ func TestController_CreateOrder(t *testing.T) {
 			}
 
 			app.Post("/v1/orders", controller.CreateOrder)
+			resp, err := app.Test(tt.args.r)
+			if err != nil {
+				return
+			}
+			assert.Equal(t, tt.wantCode, resp.StatusCode)
+
+		})
+	}
+}
+
+func TestController_GetInfoOrders(t *testing.T) {
+	type mckS func(r *mocks.Service)
+
+	type args struct {
+		w *httptest.ResponseRecorder
+		r *http.Request
+		m mckS
+		t any
+	}
+	tests := []struct {
+		name     string
+		args     args
+		wantCode int
+	}{
+		{
+			name: "positiveTest1",
+			args: args{
+				w: &httptest.ResponseRecorder{},
+				r: httptest.NewRequest(http.MethodGet, "http://127.0.0.1:8080/v1/orders?client_id=234", nil),
+				m: func(r *mocks.Service) {
+					r.On("GetInfoOrders", mock.Anything, "234").Return([]model.Order{
+						{Order: "2313", Bonus: 2, Time: "2020-12-10T15:15:45+03:00"},
+					}, nil)
+				},
+			},
+			wantCode: 200,
+		},
+		{
+			name: "negativeTest1",
+			args: args{
+				r: httptest.NewRequest(http.MethodGet, "http://127.0.0.1:8080/v1/orders?client_d=234", nil),
+				w: &httptest.ResponseRecorder{},
+				m: func(r *mocks.Service) {},
+			},
+			wantCode: 400,
+		},
+		{
+			name: "negativeTest2",
+			args: args{
+				r: httptest.NewRequest(http.MethodGet, "http://127.0.0.1:8080/v1/orders?client_id=234", nil),
+				w: &httptest.ResponseRecorder{},
+				m: func(r *mocks.Service) {
+					r.On("GetInfoOrders", mock.Anything, "234").Return([]model.Order{
+						{Order: "2313", Bonus: 2, Time: "2020-12-10T15:15:45+03:00"},
+					}, exception.ErrNotFound)
+				},
+			},
+			wantCode: 204,
+		},
+		{
+			name: "negativeTest3",
+			args: args{
+				r: httptest.NewRequest(http.MethodGet, "http://127.0.0.1:8080/v1/orders?client_id=234", nil),
+				w: &httptest.ResponseRecorder{},
+				m: func(r *mocks.Service) {
+					r.On("GetInfoOrders", mock.Anything, "234").Return([]model.Order{
+						{Order: "2313", Bonus: 2, Time: "2020-12-10T15:15:45+03:00"},
+					}, errors.ErrUnsupported)
+				},
+			},
+			wantCode: 500,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			app := fiber.New()
+
+			logic := mocks.NewService(t)
+			tt.args.m(logic)
+			tt.args.r.Header.Set("Content-Type", "text/plain")
+			tt.args.r.Header.Set("Accept", "application/json")
+
+			controller := &Controller{
+				service: logic,
+			}
+
+			app.Get("/v1/orders", controller.GetInfoOrders)
 			resp, err := app.Test(tt.args.r)
 			if err != nil {
 				return

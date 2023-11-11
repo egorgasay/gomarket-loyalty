@@ -21,6 +21,7 @@ func (controller *Controller) Route(app *fiber.App) {
 	app.Post("/v1/user", controller.Create)
 	app.Post("/v1/mechanics", controller.RegisterMechanic)
 	app.Post("/v1/orders", controller.CreateOrder)
+	app.Get("/v1/orders", controller.GetInfoOrders)
 }
 
 func (controller *Controller) Base(c *fiber.Ctx) error {
@@ -78,4 +79,20 @@ func (controller *Controller) CreateOrder(c *fiber.Ctx) error {
 	err := controller.service.CreateOrder(ctx, clientID, orderID, order)
 	return exception.ErrorHandler(c, err)
 
+}
+
+func (controller *Controller) GetInfoOrders(c *fiber.Ctx) error {
+	ctx, cancel := context.WithCancel(c.Context())
+	defer cancel()
+
+	clientID := c.Query("client_id")
+	if clientID == "" {
+		return exception.ErrorHandler(c, exception.ErrEnabledData)
+	}
+	orders, err := controller.service.GetInfoOrders(ctx, clientID)
+	if err != nil {
+		return exception.ErrorHandler(c, err)
+	}
+
+	return c.JSON(orders)
 }
