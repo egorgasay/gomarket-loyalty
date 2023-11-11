@@ -10,6 +10,7 @@ import (
 	"gomarket-loyalty/exception"
 	"gomarket-loyalty/model"
 	"gomarket-loyalty/service/mocks"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -500,6 +501,7 @@ func TestController_GetInfoOrders(t *testing.T) {
 		name     string
 		args     args
 		wantCode int
+		wantRes  string
 	}{
 		{
 			name: "positiveTest1",
@@ -508,10 +510,13 @@ func TestController_GetInfoOrders(t *testing.T) {
 				r: httptest.NewRequest(http.MethodGet, "http://127.0.0.1:8080/v1/orders?client_id=234", nil),
 				m: func(r *mocks.Service) {
 					r.On("GetInfoOrders", mock.Anything, "234").Return([]model.Order{
-						{Order: "2313", Bonus: 2, Time: "2020-12-10T15:15:45+03:00"},
+						{Order: "233", Bonus: 2, Time: "2020-12-10T15:15:45+03:10"},
+						{Order: "213", Bonus: 2, Time: "2020-12-10T15:15:45+03:03"},
+						{Order: "23", Bonus: 2, Time: "2020-12-10T15:15:45+03:00"},
 					}, nil)
 				},
 			},
+			wantRes:  "[{\"number\":\"233\",\"accrual\":2,\"upload_time\":\"2020-12-10T15:15:45+03:10\"},{\"number\":\"213\",\"accrual\":2,\"upload_time\":\"2020-12-10T15:15:45+03:03\"},{\"number\":\"23\",\"accrual\":2,\"upload_time\":\"2020-12-10T15:15:45+03:00\"}]",
 			wantCode: 200,
 		},
 		{
@@ -567,6 +572,8 @@ func TestController_GetInfoOrders(t *testing.T) {
 
 			app.Get("/v1/orders", controller.GetInfoOrders)
 			resp, err := app.Test(tt.args.r)
+			c, _ := io.ReadAll(resp.Body)
+			assert.Equal(t, tt.wantRes, string(c))
 			if err != nil {
 				return
 			}
