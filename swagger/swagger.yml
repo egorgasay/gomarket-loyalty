@@ -22,10 +22,129 @@ paths:
           description: Логин уже занят
         '500':
           description: Внутренняя ошибка сервера
+  /v1/mechanics:
+    post:
+      summary: Создание механики
+      description: Эндпоинт создании бонуса нового товара.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddBonus'
+      responses:
+        '200':
+          description: Механика успешно создана
+        '400':
+          description: Неверный формат запроса
+        '409':
+          description: Механика уже занята
+        '500':
+          description: Внутренняя ошибка сервера
+  /v1/orders:
+    post:
+      summary: Создание заказа
+      description: Создает новый заказ
+      parameters:
+        - in: query
+          name: order_id
+          schema:
+            type: string
+          description: Идентификатор заказа
+        - in: query
+          name: client_id
+          schema:
+            type: string
+          description: Идентификатор клиента
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterOrder'
+      responses:
+        '200':
+          description: Заказ успешно обработан
+        '400':
+          description: Неверный формат запроса
+        '409':
+          description: Заказ уже принят в обработку
+        '500':
+          description: Внутренняя ошибка сервера
+    get:
+      summary:  Получение списка номеров заказов
+      description: Получение списка номеров заказов
+      parameters:
+        - in: query
+          name: client_id
+          schema:
+            type: string
+          description: Идентификатор клиента
+      responses:
+        '200':
+          description: Заказ успешно обработан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '204':
+            description: Нет данных для ответа.
+        '400':
+          description: Неверный формат запроса
+        '409':
+          description: Заказ уже принят в обработку
+        '500':
+          description: Внутренняя ошибка сервера
+
+
+
+
+
 components:
   schemas:
     RegisterRequest:
       type: object
       properties:
         username:
+          type: string
+    AddBonus:
+      type: object
+      properties:
+        match:
+          type: string
+        reward:
+          type: integer
+
+        reward_type:
+          type: string
+          enum:
+            - "%"
+            - "pt"
+          description:  "%-процент от покупки | pt-сумма"
+    RegisterOrder:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              price:
+                type: integer
+              count:
+                type: integer
+      required:
+        - items
+    Order:
+      type : object
+      properties:
+        order_id:
+          type: string
+        client_id:
+          type: string
+        accrual:
+          type: integer
+        uploaded_at:
           type: string

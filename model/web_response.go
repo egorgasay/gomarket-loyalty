@@ -7,6 +7,5 @@ type WebResponse struct {
 }
 
 type RegisterRequest struct {
-	Login    string `json:"login"`
-	Password string `json:"password"`
+	Login string `json:"login"`
 }
